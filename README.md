@@ -6,7 +6,6 @@ This repository contains a comprehensive **Cinema Management System** designed t
 - **Food Ordering:** Integration of a food ordering system where users can browse and purchase snacks or meals, either for delivery to their seat or pick-up at the counter.
 - **Membership Management:** Option for users to sign up, renew, and manage membership perks such as discounts or early access to tickets.
 - **User Authentication:** Secure user login, registration, and profile management.
-- **Payment Integration:** Supports multiple payment gateways for seamless transactions.
 - **Admin Dashboard:** A backend system for cinema administrators to manage movies, schedules, and track orders.
 
 ## Tools
