@@ -1,5 +1,5 @@
 # CineMacondo: A Cinema Management System 🎬
-This repository contains a comprehensive **Cinema Management System** designed to streamline the customer experience at a movie theater. The project allows users to manage various aspects of their cinema visit, including buying tickets, ordering food, and managing memberships.
+This repository contains a comprehensive **Cinema Management System** called CineMacondo designed to streamline the customer experience at a movie theater. The project allows users to manage various aspects of their cinema visit, including buying tickets, ordering food, and managing memberships.
 
 ## Features 
 - **Ticket Booking:** Users can view available movies, showtimes, and select seats to purchase tickets.
