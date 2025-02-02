@@ -58,3 +58,8 @@ class ShowtimeRepository:
         """Get all showtimes."""
         query = "SELECT * FROM showtimes"
         return db.execute_query(query, fetch_all=True)
+
+    def get_seat_availability(self, showtime_id):
+        """Get the seat availability of a showtime."""
+        query = "SELECT available_seats FROM showtimes WHERE showtime_id = %s"
+        return db.execute_query(query, (showtime_id,), fetch_one=True)

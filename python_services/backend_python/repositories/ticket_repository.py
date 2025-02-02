@@ -64,3 +64,31 @@ class TicketRepository:
         """Get all tickets."""
         query = "SELECT * FROM tickets"
         return db.execute_query(query, fetch_all=True)
+
+    def get_tickets_by_customer_id(self, customer_id):
+        """Get all tickets for a customer by customer_id."""
+        query = "SELECT * FROM tickets WHERE customer_id = %s"
+        return db.execute_query(query, (customer_id,), fetch_all=True)
+
+    def get_tickets_details_by_id(self, ticket_id):
+        """Get the tickets details by its id"""
+        query = """
+        SELECT 
+            tickets.ticket_id,
+            tickets.customer_id,
+            tickets.movie_id,
+            tickets.showtime_id,
+            tickets.seat_number,
+            movies.title AS movie_title,
+            movies.description AS movie_description,
+            movies.genre AS movie_genre,
+            movies.release_date AS movie_release_date,
+            movies.length AS movie_length,
+            showtimes.datetime AS showtime_datetime,
+            showtimes.available_seats AS showtime_available_seats
+        FROM tickets
+        JOIN movies ON tickets.movie_id = movies.movie_id
+        JOIN showtimes ON tickets.showtime_id = showtimes.showtime_id
+        WHERE tickets.ticket_id = %s
+        """
+        return db.execute_query(query, (ticket_id,), fetch_one=True)

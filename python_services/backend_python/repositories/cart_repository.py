@@ -28,10 +28,10 @@ db = DBConnection(
 
 
 class CartRepository:
-    """This class handles the use of the cart table in the database."""
+    """This class handles interactions with the cart table in the database."""
 
     def get_cart_by_customer_id(self, customer_id):
-        """Get a cart by its customer_id."""
+        """Get the cart by its customer_id."""
         query = "SELECT * FROM cart WHERE customer_id = %s"
         return db.execute_query(query, (customer_id,), fetch_one=True)
 
@@ -41,12 +41,12 @@ class CartRepository:
         return db.execute_query(query, (customer_id,), fetch_one=True)
 
     def update_cart(self, cart_id, customer_id):
-        """Update a cart."""
+        """Update the cart."""
         query = "UPDATE cart SET customer_id = %s WHERE cart_id = %s RETURNING *"
         return db.execute_query(query, (customer_id, cart_id), fetch_one=True)
 
     def delete_cart(self, cart_id):
-        """Delete a cart."""
+        """Delete the cart."""
         query = "DELETE FROM cart WHERE cart_id = %s"
         return db.execute_query(query, (cart_id,))
 

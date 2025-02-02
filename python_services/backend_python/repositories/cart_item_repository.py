@@ -28,10 +28,10 @@ db = DBConnection(
 
 
 class CartItemRepository:
-    """This class handles the use of the cart_item table in the database."""
+    """This class handles interactions with the cart_item table in the database."""
 
     def get_cart_item_by_id(self, cart_item_id):
-        """Get a cart item by its id."""
+        """Get a cart item by its ID."""
         query = "SELECT * FROM cart_items WHERE cart_item_id = %s"
         return db.execute_query(query, (cart_item_id,), fetch_one=True)
 
@@ -58,3 +58,8 @@ class CartItemRepository:
         """Get all cart items."""
         query = "SELECT * FROM cart_items"
         return db.execute_query(query, fetch_all=True)
+
+    def get_cart_item_by_ticket_id_and_cart_id(self, cart_id, ticket_id):
+        """Get a cart item by its cart_id and ticket_id."""
+        query = "SELECT * FROM cart_items WHERE cart_id = %s AND ticket_id = %s"
+        return db.execute_query(query, (cart_id, ticket_id), fetch_one=True)

@@ -60,3 +60,9 @@ class MovieRepository:
         """Get all movies."""
         query = "SELECT * FROM movies"
         return db.execute_query(query, fetch_all=True)
+
+    def get_movies_by_genre(self, genre):
+        """Get all movies by genre."""
+        query = "SELECT * FROM movies WHERE genre = %s"
+        return db.execute_query(query, (genre,), fetch_all=True)
+        
