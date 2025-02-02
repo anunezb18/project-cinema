@@ -1,7 +1,7 @@
 [project]
 name = "backend-python"
 version = "0.1.0"
-description = ""
+description = "This is the backend of a project about a system for managing a cinema"
 authors = [
     {name = "Alejandro Nuñez",email = "anunezb@udistrital.edu.co"},
     {name = "Miguel Sanabria",email = "masanabriap@udistrital.edu.co"}
