@@ -18,15 +18,7 @@ along with CineMacondo. If not, see <https://www.gnu.org/licenses/>.
 
 from .db_connection import DBConnection
 
-db = DBConnection(
-    dbname="cinemacondo",
-    user="postgres",
-    password="Bullrock",
-    host="localhost",
-    port=5432,
-)
-
-
+db = DBConnection()
 class CartRepository:
     """This class handles interactions with the cart table in the database."""
 

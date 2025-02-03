@@ -1,6 +1,5 @@
 """
-This class contains the connection to the database.
-
+This class handle the use of the cart table in the database.
 @Author: <anunezb@udistrital.edu.co>, <masanabriap@udistrital.edu.co>
 
 CineMacondo is free software: you can redistribute it and/or 
@@ -17,50 +16,63 @@ You should have received a copy of the GNU General Public License
 along with CineMacondo. If not, see <https://www.gnu.org/licenses/>.
 """
 
+import logging
+import os
 import psycopg2
 
 
 class DBConnection:
-    """This class handle the connection to the database."""
+    """This class handles the connection to the database."""
 
-    def __init__(self, dbname, user, password, host, port=5432):
+    def __init__(self):
         """Initialize the database connection."""
-        self.dbname = dbname
-        self.user = user
-        self.password = password
-        self.host = host
-        self.port = port
+        self.name = os.getenv("DATABASE_NAME", "cinemacondo")
+        self.user = os.getenv("DATABASE_USER", "postgres")
+        self.password = os.getenv("DATABASE_PASSWORD", "181018")
+        self.host = os.getenv("DATABASE_HOST", "localhost")
+        self.port = int(os.getenv("DATABASE_PORT", "5432"))
         self.conn = None
 
     def connect(self):
-        """Stablish the connection to the database."""
+        """Establish the connection to the database."""
         if self.conn is None:
-            self.conn = psycopg2.connect(
-                dbname=self.dbname,
-                user=self.user,
-                password=self.password,
-                host=self.host,
-                port=self.port,
-            )
+            try:
+                self.conn = psycopg2.connect(
+                    dbname=self.name,
+                    user=self.user,
+                    password=self.password,
+                    host=self.host,
+                    port=self.port,
+                )
+                logging.info("Database connection established.")
+            except psycopg2.DatabaseError as e:
+                logging.error("Database connection failed: %s", e)
+                raise
 
     def execute_query(self, query, params=None, fetch_one=False, fetch_all=False):
         """Execute a query to the database."""
         self.connect()
-        with self.conn.cursor() as cursor:
-            cursor.execute(query, params or ())
+        try:
+            with self.conn.cursor() as cursor:
+                cursor.execute(query, params or ())
 
-            if fetch_one:
-                result = cursor.fetchone()
-            elif fetch_all:
-                result = cursor.fetchall()
-            else:
-                result = None
+                if fetch_one:
+                    result = cursor.fetchone()
+                elif fetch_all:
+                    result = cursor.fetchall()
+                else:
+                    result = None
 
-            self.conn.commit()
-            return result
+                self.conn.commit()
+                return result
+        except psycopg2.DatabaseError as e:
+            logging.error("Query execution failed: %s", e)
+            self.conn.rollback()
+            raise
 
     def close(self):
         """Close the connection to the database."""
         if self.conn:
             self.conn.close()
             self.conn = None
+            logging.info("Database connection closed.")

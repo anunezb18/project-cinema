@@ -18,15 +18,7 @@ along with CineMacondo. If not, see <https://www.gnu.org/licenses/>.
 
 from .db_connection import DBConnection
 
-db = DBConnection(
-    dbname="cinemacondo",
-    user="postgres",
-    password="Bullrock",
-    host="localhost",
-    port=5432,
-)
-
-
+db = DBConnection()
 class MembershipRepository:
     """This class handles the use of the membership table in the database."""
 

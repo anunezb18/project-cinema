@@ -1,20 +1,27 @@
-from datetime import datetime
-from backend_python.services.ticket import Ticket
-from backend_python.services.ticket_state import TicketState, CancelledState, PaidState, UsedState
-from backend_python.services.pricing_stategy import RegularPricing, DayPricing, HourPricing, MemberPricing
+"""
+This class is responsible for handling the web services created with Fastapi.
+@Author: <anunezb@udistrital.edu.co>, <masanabriap@udistrital.edu.co>
 
-# Regular pricing
-ticket = Ticket(strategy=RegularPricing(), ticket_id=1, movie_id=1, showtime_id=1, seat_number=1, status=PaidState())
-print(ticket.get_final_price())  # Should print 5.0
+CineMacondo is free software: you can redistribute it and/or 
+modify it under the terms of the GNU General Public License as 
+published by the Free Software Foundation, either version 3 of 
+the License, or (at your option) any later version.
 
-# Day pricing (Tuesday)
-ticket = Ticket(strategy=DayPricing(), ticket_id=1, movie_id=1, showtime_id=1, seat_number=1, status=PaidState())
-print(ticket.get_final_price(date=datetime(2023, 10, 17)))  # Should print 4.0 (Tuesday)
+CineMacondo is distributed in the hope that it will be useful, 
+but WITHOUT ANY WARRANTY; without even the implied warranty of 
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+General Public License for more details.
 
-# Hour pricing (After 3 PM)
-ticket = Ticket(strategy=HourPricing(), ticket_id=1, movie_id=1, showtime_id=1, seat_number=1, status=PaidState())
-print(ticket.get_final_price(date=datetime(2023, 10, 17, 16, 0)))  # Should print 5.5 (After 3 PM)
+You should have received a copy of the GNU General Public License 
+along with CineMacondo. If not, see <https://www.gnu.org/licenses/>.
+"""
+from fastapi import FastAPI
+from backend_python.controllers.user import router as user_router
 
-# Member pricing
-ticket = Ticket(strategy=MemberPricing(), ticket_id=1, movie_id=1, showtime_id=1, seat_number=1, status=PaidState())
-print(ticket.get_final_price(is_member=True))  # Should print 4.5 (Member)
+app = FastAPI(
+    title="CineMacondo",
+    description="This is a backend service for the CineMacondo project, a systen cinema managment.",
+    version="0.0.1",
+)
+
+app.include_router(user_router)
