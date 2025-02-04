@@ -17,7 +17,8 @@ along with CineMacondo. If not, see <https://www.gnu.org/licenses/>.
 """
 from fastapi import FastAPI
 from backend_python.controllers.user import router as user_router
-from backend_python.controllers.customer import router as customer_router  
+from backend_python.controllers.customer import router as customer_router
+from backend_python.controllers.admin import router as admin_router
 
 app = FastAPI(
     title="CineMacondo",
@@ -27,3 +28,4 @@ app = FastAPI(
 
 app.include_router(user_router)
 app.include_router(customer_router)
+app.include_router(admin_router)

@@ -31,21 +31,10 @@ class MembershipRepository:
 
     def create_membership(self, customer_id, expiration_date, status):
         """Create a new membership."""
-
-        existing_membership = self.get_membership_by_customer_id(customer_id)
-        if existing_membership:
-            return None  
-
         query = "INSERT INTO membership (customer_id, expiration_date, status) VALUES (%s, %s, %s) RETURNING *"
-        membership = db.execute_query(
+        return db.execute_query(
             query, (customer_id, expiration_date, status), fetch_one=True
         )
-
-        if membership:
-            membership = dict(membership)
-            membership["expiration_date"] = membership["expiration_date"].isoformat()
-        
-        return membership
 
     def update_membership(self, membership_id, expiration_date, status):
         """Update a membership."""

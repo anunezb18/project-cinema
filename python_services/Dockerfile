@@ -11,7 +11,7 @@ COPY requirements.txt .
 RUN pip install --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-ENV PYTHONPATH=/app
+ENV PYTHONPATH=/app/python_services
 
 COPY ./backend_python /app/backend_python
 

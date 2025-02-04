@@ -96,7 +96,6 @@ async def acquire_membership(request: Request):
     if membership_acquired:
         return JSONResponse(
             content={
-                "data": membership_acquired,
                 "detail": "Membership acquired successfully",
             },
             status_code=201,
