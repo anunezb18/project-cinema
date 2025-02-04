@@ -53,3 +53,4 @@ class UserRepository:
         """Get a user by its email and password."""
         query = "SELECT * FROM users WHERE email = %s AND password = %s"
         return db.execute_query(query, (email, password), fetch_one=True)
+

@@ -23,27 +23,20 @@ db = DBConnection()
 class CustomerRepository:
     """This class handles the use of the customer table in the database."""
 
-    def get_customer_by_email(self, email):
-        """Get a customer by its email."""
-        query = "SELECT * FROM customers WHERE email = %s"
-        return db.execute_query(query, (email,), fetch_one=True)
+    def get_customer_by_id(self, customer_id):
+        """Get a customer by its id."""
+        query = "SELECT * FROM customers WHERE customer_id = %s"
+        return db.execute_query(query, (customer_id,), fetch_one=True)
 
     def create_customer(self, email):
         """Create a new customer."""
-        query = "INSERT INTO customers (email) VALUES (%s) RETURNING *"
+        query = (
+            "INSERT INTO customers (email) VALUES (%s) RETURNING *"
+        )
         return db.execute_query(query, (email,), fetch_one=True)
-
-    def update_customer(self, customer_id, email):
-        """Update a customer."""
-        query = "UPDATE customers SET email = %s WHERE customer_id = %s RETURNING *"
-        return db.execute_query(query, (email, customer_id), fetch_one=True)
-
-    def delete_customer(self, customer_id):
-        """Delete a customer."""
-        query = "DELETE FROM customers WHERE customer_id = %s"
-        return db.execute_query(query, (customer_id,))
 
     def get_all_customers(self):
         """Get all customers."""
         query = "SELECT * FROM customers"
         return db.execute_query(query, fetch_all=True)
+
