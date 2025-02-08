@@ -24,51 +24,25 @@ from backend_python.repositories.cart_repository import CartRepository
 class Cart:
     """This class contains the logic of the shopping cart and integrates it with the database."""
 
-    def __init__(self, customer_id: int):
-        self.cart_repository = CartRepository()
-        self.cart_item_repository = CartItemRepository()
-        self.customer_id = customer_id
-        self.cart = self.cart_repository.get_cart_by_customer_id(customer_id)
+    def __init__(self):
+        self.repository = CartRepository()
+        self.item_repository = CartItemRepository()
 
-        if not self.cart:
-            self.cart = self.cart_repository.create_cart(customer_id)
+    def add_to_cart(self, customer_id: int, ticket_id: int):
+        """Add a ticket to the cart."""
+        return self.item_repository.add_item(customer_id, ticket_id)
 
-    def add_to_cart(self, ticket_id: int):
-        """Adds a ticket to the cart (in the database)."""
-        
-        existing_item = self.cart_item_repository.get_cart_item_by_ticket_id_and_cart_id(
-            self.cart["cart_id"], ticket_id
-        )
-        
-        if not existing_item:
+    def remove_from_cart(self, customer_id: int, ticket_id: int):
+        """Remove a ticket from the cart."""
+        return self.item_repository.remove_item(customer_id, ticket_id)
 
-            self.cart_item_repository.create_cart_item(
-                self.cart["cart_id"], ticket_id
-            )
-            return {"message": f"Ticket {ticket_id} added successfully."}
-        
-        return {"error": f"Ticket {ticket_id} is already in the cart."}
+    def clear_cart(self, customer_id: int):
+        """Clear the cart."""
+        return self.item_repository.clear_items(customer_id)
 
-
-    def remove_from_cart(self, ticket_id: int):
-        """Removes a ticket from the cart (in the database)."""
-        item = self.cart_item_repository.get_cart_item_by_id(ticket_id)
-        if item:
-            self.cart_item_repository.delete_cart_item(item["cart_item_id"])
-            return {"message": f"Ticket {ticket_id} removed successfully."}
-        return {"error": f"Ticket {ticket_id} not found in the cart."}
-
-    def clear_cart(self):
-        """Clears all items from the cart (in the database)."""
-        cart_items = self.cart_item_repository.get_all_cart_items()
-        for item in cart_items:
-            self.cart_item_repository.delete_cart_item(item["cart_item_id"])
-        return {"message": "Cart cleared successfully."}
-
-    def get_items(self):
-        """Returns all items in the cart (retrieved from the database)."""
-        cart_items = self.cart_item_repository.get_all_cart_items()
-        return cart_items
+    def get_items_by_customer_id(self, customer_id: int):
+        """Get all items in the cart for a specific customer."""
+        return self.item_repository.get_items_by_customer_id(customer_id)
 
 
 class Command(ABC):
@@ -82,33 +56,47 @@ class Command(ABC):
 class AddToCartCommand(Command):
     """Command to add a ticket to the cart."""
 
-    def __init__(self, cart: Cart, ticket_id: int):
+    def __init__(self, cart: Cart, customer_id: int, ticket_id: int):
         self.cart = cart
+        self.customer_id = customer_id
         self.ticket_id = ticket_id
 
     def execute(self):
-        return self.cart.add_to_cart(self.ticket_id)
+        return self.cart.add_to_cart(self.customer_id, self.ticket_id)
 
 
 class RemoveFromCartCommand(Command):
     """Command to remove a ticket from the cart."""
 
-    def __init__(self, cart: Cart, ticket_id: int):
+    def __init__(self, cart: Cart, customer_id: int, ticket_id: int):
         self.cart = cart
+        self.customer_id = customer_id
         self.ticket_id = ticket_id
 
     def execute(self):
-        return self.cart.remove_from_cart(self.ticket_id)
+        return self.cart.remove_from_cart(self.customer_id, self.ticket_id)
 
 
 class ClearCartCommand(Command):
     """Command to clear the cart."""
 
-    def __init__(self, cart: Cart):
+    def __init__(self, cart: Cart, customer_id: int):
         self.cart = cart
+        self.customer_id = customer_id
 
     def execute(self):
-        return self.cart.clear_cart()
+        return self.cart.clear_cart(self.customer_id)
+
+
+class GetItemsByCustomerIdCommand(Command):
+    """Command to get all items in the cart for a specific customer."""
+
+    def __init__(self, cart: Cart, customer_id: int):
+        self.cart = cart
+        self.customer_id = customer_id
+
+    def execute(self):
+        return self.cart.get_items_by_customer_id(self.customer_id)
 
 
 class CartInvoker:

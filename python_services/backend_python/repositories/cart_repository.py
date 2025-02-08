@@ -16,9 +16,16 @@ You should have received a copy of the GNU General Public License
 along with CineMacondo. If not, see <https://www.gnu.org/licenses/>.
 """
 
+from pydantic import BaseModel
 from .db_connection import DBConnection
 
 db = DBConnection()
+
+class CartDAO(BaseModel):
+    """This class is used to define data structure for cart."""
+
+    cart_id: int
+    customer_id: int
 class CartRepository:
     """This class handles interactions with the cart table in the database."""
 
@@ -29,20 +36,18 @@ class CartRepository:
 
     def create_cart(self, customer_id):
         """Create a new cart."""
-        query = "INSERT INTO cart (customer_id) VALUES (%s) RETURNING *"
-        return db.execute_query(query, (customer_id,), fetch_one=True)
+        existing_cart = self.get_cart_by_customer_id(customer_id)
+        if existing_cart:
+            return {
+                "cart_id": existing_cart[0],
+                "customer_id": existing_cart[1]
+            }
 
-    def update_cart(self, cart_id, customer_id):
-        """Update the cart."""
-        query = "UPDATE cart SET customer_id = %s WHERE cart_id = %s RETURNING *"
-        return db.execute_query(query, (customer_id, cart_id), fetch_one=True)
-
-    def delete_cart(self, cart_id):
-        """Delete the cart."""
-        query = "DELETE FROM cart WHERE cart_id = %s"
-        return db.execute_query(query, (cart_id,))
-
-    def get_all_carts(self):
-        """Get all carts."""
-        query = "SELECT * FROM cart"
-        return db.execute_query(query, fetch_all=True)
+        query = "INSERT INTO cart (customer_id) VALUES (%s) RETURNING cart_id, customer_id"
+        result = db.execute_query(query, (customer_id,), fetch_one=True)
+        if result:
+            return {
+                "cart_id": result[0],
+                "customer_id": result[1]
+            }
+        return None

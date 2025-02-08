@@ -19,6 +19,11 @@ from fastapi import FastAPI
 from backend_python.controllers.user import router as user_router
 from backend_python.controllers.customer import router as customer_router
 from backend_python.controllers.admin import router as admin_router
+from backend_python.controllers.membership import router as membership_router
+from backend_python.controllers.movie import router as movie_router
+from backend_python.controllers.showtime import router as showtime_router
+from backend_python.controllers.ticket import router as ticket_router
+from backend_python.controllers.cart import router as cart_router
 
 app = FastAPI(
     title="CineMacondo",
@@ -29,3 +34,8 @@ app = FastAPI(
 app.include_router(user_router)
 app.include_router(customer_router)
 app.include_router(admin_router)
+app.include_router(membership_router)
+app.include_router(movie_router)
+app.include_router(showtime_router)
+app.include_router(ticket_router)
+app.include_router(cart_router)

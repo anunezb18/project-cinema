@@ -16,18 +16,43 @@ You should have received a copy of the GNU General Public License
 along with CineMacondo. If not, see <https://www.gnu.org/licenses/>.
 """
 
-from pydantic import BaseModel
+from abc import ABC
 from backend_python.repositories.cart_item_repository import CartItemRepository
 from backend_python.repositories.ticket_repository import TicketRepository
 from backend_python.repositories.membership_repository import MembershipRepository
-from .cart import Cart
+from backend_python.repositories.customer_repository import CustomerRepository
 
 
-class Customer(BaseModel):
+class Customer(ABC):
     """This class is responsible for managing the customer's logic."""
 
-    cart: Cart
+    def __init__(self):
+        self.repository = CustomerRepository()
 
+    def create_customer(self, email: str, type_customer: str):
+        """This method is responsible for creating a customer."""
+        self.repository.create_customer(email, type_customer)
+        return {"detail": "Customer created successfully."}
+
+    def asign_cart(self, customer_id, cart_id):
+        """This method is responsible for assigning a cart to a customer."""
+        self.repository.asign_cart(customer_id, cart_id)
+        return {"detail": "Cart assigned successfully."}
+    
+    def get_customer_by_id(self, customer_id):
+        """This method is responsible for getting a customer by its id."""
+        return self.repository.get_customer_by_id(customer_id)
+
+    def get_all_customers(self):
+        """This method is responsible for getting all customers."""
+        return self.repository.get_all_customers()
+    
+    def acquire_membership(self, customer_id, expiration_date, status):
+        """This method is responsible for acquiring a membership."""
+        membership_repository = MembershipRepository()
+        membership_repository.create_membership(customer_id, expiration_date, status)
+        return {"detail": "Membership acquired successfully."}
+    
     def add_to_cart(self, cart_id, ticket_id):
         """This method is responsible for adding a movie to the cart."""
         cart_repository = CartItemRepository()
@@ -43,11 +68,14 @@ class Customer(BaseModel):
         """This method is responsible for viewing the tickets."""
         ticket_repository = TicketRepository()
         return ticket_repository.get_tickets_by_customer_id(customer_id)
+    
+    def update_role(self, customer_id, new_role):
+        """This method is responsible for updating the role."""
+        return self.repository.update_role(customer_id, new_role)
 
 
 class RegularCustomer(Customer):
     """This class is responsible for managing the regular customer's logic."""
-
 
 
 class MemberCustomer(Customer):

@@ -16,13 +16,37 @@ You should have received a copy of the GNU General Public License
 along with CineMacondo. If not, see <https://www.gnu.org/licenses/>.
 """
 
+from pydantic import BaseModel
 from .db_connection import DBConnection
 
 db = DBConnection()
+
+class MovieDAO(BaseModel):
+    """Data Access Object for the movie table."""
+    movie_id: int
+    title: str
+    description: str
+    genre: str
+    release_date: str
+    length: int
 class MovieRepository:
     """This class handles the use of the movie table in the database."""
 
-    def get_movie_by_id(self, movie_id):
+    def get_all_movies(self):
+        """Get all movies."""
+        query = "SELECT * FROM movies"
+        return db.execute_query(query, fetch_all=True)
+
+    def get_movies_by_genre(self, genre: str):
+        """Get all movies by genre."""
+        query = """
+        SELECT * FROM movies 
+        WHERE %s = ANY (string_to_array(lower(genre), ','))
+        """
+        genre_param = genre.lower()
+        return db.execute_query(query, (genre_param,), fetch_all=True)
+
+    def get_movie_by_id(self, movie_id) -> MovieDAO:
         """Get a movie by its id."""
         query = "SELECT * FROM movies WHERE movie_id = %s"
         return db.execute_query(query, (movie_id,), fetch_one=True)
@@ -47,14 +71,4 @@ class MovieRepository:
         """Delete a movie."""
         query = "DELETE FROM movies WHERE movie_id = %s"
         return db.execute_query(query, (movie_id,))
-
-    def get_all_movies(self):
-        """Get all movies."""
-        query = "SELECT * FROM movies"
-        return db.execute_query(query, fetch_all=True)
-
-    def get_movies_by_genre(self, genre):
-        """Get all movies by genre."""
-        query = "SELECT * FROM movies WHERE genre = %s"
-        return db.execute_query(query, (genre,), fetch_all=True)
         

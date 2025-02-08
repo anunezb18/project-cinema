@@ -18,37 +18,18 @@ along with CineMacondo. If not, see <https://www.gnu.org/licenses/>.
 
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import JSONResponse
-from backend_python.repositories.admin_repository import AdminRepository
-from backend_python.repositories.movie_repository import MovieRepository
-from backend_python.repositories.showtime_repository import ShowtimeRepository
+from backend_python.services.admin_interface import AdminProxy
 
 router = APIRouter()
 
-
-@router.post("/create_admin")
-async def create_admin(request: Request):
-    """This method is responsible for creating an admin."""
-    data = await request.json()
-    email = data.get("email")
-
-    admin_created = AdminRepository().create_admin(email)
-
-    if admin_created:
-        return JSONResponse(
-            content={
-                "data": admin_created,
-                "detail": "Admin created successfully",
-            },
-            status_code=201,
-        )
-    else:
-        raise HTTPException(status_code=400, detail="Admin creation failed")
+user_role = "admin"  # pylint: disable=invalid-name
+services = AdminProxy(user_role)
 
 
 @router.get("/get_all_admins")
 def get_all_admins():
     """This method is responsible for obtaining all admins."""
-    admins = AdminRepository().get_all_admins()
+    admins = services.get_all_admins()
     if admins:
         return JSONResponse(
             content={"data": admins, "detail": "Admins obtained successfully"},
@@ -61,7 +42,7 @@ def get_all_admins():
 @router.get("/get_admin_by_id/{admin_id}")
 def get_admin_by_id(admin_id: int):
     """This method is responsible for obtaining an admin by its id."""
-    admin = AdminRepository().get_admin_by_id(admin_id)
+    admin = services.get_admin_by_id(admin_id)
     if admin:
         return JSONResponse(
             content={"data": admin, "detail": "Admin obtained successfully"},
@@ -81,20 +62,46 @@ async def add_movie(request: Request):
     release_date = data.get("release_date")
     length = data.get("length")
 
-    movie_created = MovieRepository().create_movie(
-        title, description, genre, release_date, length
+    movie_created = services.add_movie(title, description, genre, release_date, length)
+
+    return movie_created
+
+
+@router.post("/update_movie")
+async def update_movie(request: Request):
+    """This method is responsible for updating a movie."""
+    data = await request.json()
+    movie_id = data.get("movie_id")
+    title = data.get("title")
+    description = data.get("description")
+    genre = data.get("genre")
+    release_date = data.get("release_date")
+    length = data.get("length")
+
+    movie_updated = services.update_movie(
+        movie_id, title, description, genre, release_date, length
     )
 
-    if movie_created:
+    if movie_updated:
         return JSONResponse(
-            content={
-                "data": movie_created,
-                "detail": "Movie created successfully",
-            },
-            status_code=201,
+            content={"detail": "Movie updated successfully"},
+            status_code=200,
         )
     else:
-        raise HTTPException(status_code=400, detail="Movie creation failed")
+        raise HTTPException(status_code=400, detail="Movie update failed")
+
+
+@router.delete("/delete_movie/{movie_id}")
+def delete_movie(movie_id: int):
+    """This method is responsible for deleting a movie."""
+    movie_deleted = services.delete_movie(movie_id)
+    if movie_deleted:
+        return JSONResponse(
+            content={"detail": "Movie deleted successfully"},
+            status_code=200,
+        )
+    else:
+        raise HTTPException(status_code=400, detail="Movie deletion failed")
 
 
 @router.post("/create_showtime")
@@ -103,11 +110,8 @@ async def create_showtime(request: Request):
     data = await request.json()
     movie_id = data.get("movie_id")
     datetime = data.get("datetime")
-    available_seats = data.get("available_seats")
 
-    showtime_created = ShowtimeRepository().create_showtime(
-        movie_id, datetime, available_seats
-    )
+    showtime_created = services.manage_showtime(movie_id, datetime)
 
     if showtime_created:
         return JSONResponse(
@@ -118,3 +122,22 @@ async def create_showtime(request: Request):
         )
     else:
         raise HTTPException(status_code=400, detail="Showtime creation failed")
+
+
+@router.post("/update_showtime")
+async def update_showtime(request: Request):
+    """This method is responsible for updating a showtime."""
+    data = await request.json()
+    showtime_id = data.get("showtime_id")
+    movie_id = data.get("movie_id")
+    datetime = data.get("datetime")
+
+    showtime_updated = services.update_showtime(showtime_id, movie_id, datetime)
+
+    if showtime_updated:
+        return JSONResponse(
+            content={"detail": "Showtime updated successfully"},
+            status_code=200,
+        )
+    else:
+        raise HTTPException(status_code=400, detail="Showtime update failed")

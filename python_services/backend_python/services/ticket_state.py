@@ -19,57 +19,98 @@ along with CineMacondo. If not, see <https://www.gnu.org/licenses/>.
 from abc import ABC, abstractmethod
 
 class TicketState(ABC):
-    """Clase base para el estado del ticket usando el patrón State."""
+    """Base class for the ticket state using the State pattern."""
 
     @abstractmethod
     def cancel_ticket(self, ticket):
-        """Cambia el estado del ticket a cancelado."""
+        """Attempts to cancel the ticket. Changes the state if allowed."""
+        pass
 
     @abstractmethod
     def use_ticket(self, ticket):
-        """Cambia el estado del ticket a usado."""
+        """Attempts to use the ticket. Changes the state if allowed."""
+        pass
 
     @abstractmethod
     def get_status(self):
-        """Devuelve el estado actual del ticket."""
+        """Returns the current state name."""
+        pass
+
+
+class AddedCartState(TicketState):
+    """State: The ticket has been added to the cart but not yet paid."""
+
+    def cancel_ticket(self, ticket):
+        ticket.set_state(CancelledState())
+        return "Ticket cancelled."
+
+    def use_ticket(self, ticket):
+        ticket.set_state(PaidState())
+        return "Ticket paid."
+
+    def get_status(self):
+        return "added_to_cart"
 
 
 class PaidState(TicketState):
-    """Estado 'pagado' de un ticket."""
+    """State: The ticket has been paid and can be used."""
 
     def cancel_ticket(self, ticket):
-        ticket.status = CancelledState()
-        return "Ticket cancelled"
+        ticket.set_state(CancelledState())
+        return "Ticket cancelled."
 
     def use_ticket(self, ticket):
-        ticket.status = UsedState()
-        return "Ticket used"
+        ticket.set_state(UsedState())
+        return "Ticket used."
 
     def get_status(self):
         return "paid"
 
 
 class UsedState(TicketState):
-    """Estado 'usado' de un ticket."""
+    """State: The ticket has been used and cannot be reused or cancelled."""
 
     def cancel_ticket(self, ticket):
-        return "Cannot cancel a used ticket"
+        return "Cannot cancel a used ticket."
 
     def use_ticket(self, ticket):
-        return "Ticket already used"
+        return "Ticket already used."
 
     def get_status(self):
         return "used"
 
 
 class CancelledState(TicketState):
-    """Estado 'cancelado' de un ticket."""
+    """State: The ticket has been cancelled and cannot be used."""
 
     def cancel_ticket(self, ticket):
-        return "Ticket already cancelled"
+        return "Ticket already cancelled."
 
     def use_ticket(self, ticket):
-        return "Cannot use a cancelled ticket"
+        return "Cannot use a cancelled ticket."
 
     def get_status(self):
         return "cancelled"
+
+
+class Ticket:
+    """The Context class that maintains a reference to a TicketState instance."""
+
+    def __init__(self):
+        self._state = AddedCartState()  # Default state
+
+    def set_state(self, state: TicketState):
+        """Changes the ticket's state."""
+        self._state = state
+
+    def cancel(self):
+        """Requests the ticket to be cancelled."""
+        return self._state.cancel_ticket(self)
+
+    def use(self):
+        """Requests the ticket to be used."""
+        return self._state.use_ticket(self)
+
+    def get_status(self):
+        """Returns the current ticket status."""
+        return self._state.get_status()

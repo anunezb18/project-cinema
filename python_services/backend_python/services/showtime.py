@@ -16,21 +16,21 @@ You should have received a copy of the GNU General Public License
 along with CineMacondo. If not, see <https://www.gnu.org/licenses/>.
 """
 
-from pydantic import BaseModel
 from backend_python.repositories.showtime_repository import ShowtimeRepository
 
-
-class Showtime(BaseModel):
+class Showtime():
     """This class is responsible for managing the showtime's logic."""
 
-    showtime_id: int
-    movie_id: int
-    datetime: str
-    available_seats: int
+    def __init__(self):
+        self.showtime_repository = ShowtimeRepository()
 
-    def get_showtimes(self):
+    def get_all_showtimes(self):
         """This method is responsible for getting all the showtimes."""
         return ShowtimeRepository().get_all_showtimes()
+    
+    def get_showtime_by_id(self, showtime_id: int):
+        """This method is responsible for getting a showtime by its id."""
+        return ShowtimeRepository().get_showtime_by_id(showtime_id)
 
     def get_seat_availability(self, showtime_id: int) -> int:
         """This method is responsible for getting the seat availability of a showtime."""

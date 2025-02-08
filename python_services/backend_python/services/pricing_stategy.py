@@ -26,7 +26,7 @@ class PricingStrategy(ABC):
     @abstractmethod
     def get_price(
         self, base_price: float, date: datetime = None, is_member: bool = False
-    ) -> float:
+    ):
         """This method is responsible for getting the price of a ticket."""
 
 
@@ -35,7 +35,7 @@ class RegularPricing(PricingStrategy):
 
     def get_price(
         self, base_price: float, date: datetime = None, is_member: bool = False
-    ) -> float:
+    ):
         """This method is responsible for getting the regular price of a ticket."""
         return base_price
 
@@ -84,6 +84,6 @@ class MemberPricing(PricingStrategy):
     ) -> float:
         """This method is responsible for getting the member-based price of a ticket."""
         if is_member:
-            return base_price * 0.9
+            return base_price * 0.5
         else:
             return base_price

@@ -15,38 +15,96 @@ General Public License for more details.
 You should have received a copy of the GNU General Public License 
 along with CineMacondo. If not, see <https://www.gnu.org/licenses/>.
 """
+
 from abc import ABC
-from pydantic import BaseModel
 from backend_python.repositories.user_repository import UserRepository
+from .user_factory import UserFactory
 
 
-class User(BaseModel, ABC):
+class User(ABC):
     """This class has the services for user management."""
 
-    name: str
-    email: str
-    password: str
+    def __init__(self):
+        self.repository = UserRepository()
 
-    def signup(self, name: str, email: str, password: str):
-        """This method is responsible for registering a user."""
-        user_repository = UserRepository()
-        user_repository.create_user(email, name, password)
-        return {"message": "User created successfully."}
-
-    def login(self, email: str, password: str):
-        """This method is responsible for logging in a user."""
-        user_repository = UserRepository()
-        user = user_repository.get_user_by_email_and_password(email, password)
+    def signup(self, name: str, email: str, password: str, role: str):
+        """This method is responsible for registering a user.
+        
+        Args:
+            name (str): The name of the user.
+            email (str): The email of the user.
+            password (str): The password of the user.
+            role (str): The role of the user.
+            
+        Returns:
+            dict: A dictionary with the message of the operation.
+        """
+        user_factory = UserFactory()
+        user = user_factory.create_user(name, email, password, role)
         if user:
-            return {"message": "User logged in successfully."}
-        return {"message": "User not found."}
+            return {"detail": "User created successfully."}
+        return {"detail": "User creation failed."}
 
-    def log_out(self):
-        """This method is responsible for logging out a user."""
-        return {"message": "User logged out successfully."}
+    def update(self, name: str, email: str, password: str):
+        """This method is responsible for updating a user.
+        
+        Args:
+            name (str): The name of the user.
+            email (str): The email of the user.
+            password (str): The password of the user.
 
-    def update_info(self, name: str, email: str, password: str):
-        """This method is responsible for updating a user's information."""
-        user_repository = UserRepository()
-        user_repository.update_user(email, name, password)
-        return {"message": "User updated successfully."}
+        Returns:
+            dict: A dictionary with the message of the operation
+        """
+        user = self.repository.update_user(email, name, password)
+        if user:
+            return {"detail": "User updated successfully."}
+        return {"detail": "User not found."}
+    
+    def delete_user(self, email: str):
+        """This method is responsible for deleting a user.
+        
+        Args:
+            email (str): The email of the user.
+
+        Returns:
+            dict: A dictionary with the message of the operation
+        """
+        user_deleted = self.repository.delete_user(email)
+        if user_deleted:
+            return {"detail": "User deleted successfully."}
+        return {"detail": "User not found."}
+
+    def get_all__users(self):
+        """This method is responsible for getting all users.
+        
+        Returns:
+            list: A list with all users.
+        """
+        return self.repository.get_all_users()
+    
+    def get_user_by_email(self, email: str):
+        """This method is responsible for getting a user by its email.
+        
+        Args:
+            email (str): The email of the user.
+            
+        Returns:
+            dict: A dictionary with the user.
+        """
+        return self.repository.get_user_by_email(email)
+    
+    def login(self, email: str, password: str):
+        """This method is responsible for logging in a user.
+        
+        Args:
+            email (str): The email of the user.
+            password (str): The password of the user.
+            
+        Returns:
+            dict: A dictionary with the message of the operation.
+        """
+        user = self.repository.get_user_by_email_and_password(email, password)
+        if user:
+            return {"detail": "User logged in successfully."}
+        return {"detail": "User not found."}

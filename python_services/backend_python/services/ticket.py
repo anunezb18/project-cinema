@@ -17,50 +17,68 @@ along with CineMacondo. If not, see <https://www.gnu.org/licenses/>.
 """
 
 from datetime import datetime
-from pydantic import BaseModel
 from backend_python.repositories.ticket_repository import TicketRepository
-from .ticket_state import TicketState
-from .pricing_stategy import PricingStrategy
+from backend_python.repositories.customer_repository import CustomerRepository
+from backend_python.repositories.showtime_repository import ShowtimeRepository
+from backend_python.repositories.showtime_repository import SeatRepository
+from .ticket_state import AddedCartState, CancelledState
+from .pricing_stategy import MemberPricing, DayPricing, HourPricing, RegularPricing
 
 
-class Ticket(BaseModel):
+class Ticket:
     """This class is responsible for managing the ticket's logic."""
 
-    strategy: PricingStrategy
-    base_price: float = 5.0
-    ticket_id: int
-    movie_id: int
-    showtime_id: int
-    seat_number: int
-    status: TicketState
+    def __init__(self):
+        self.repository = TicketRepository()
 
-    class Config:
-        """This class is for pydantic configuration."""
+    def get_all_tickets(self):
+        """This method is responsible for getting all tickets."""
+        tickets = self.repository.get_all_tickets()
+        return tickets
 
-        arbitrary_types_allowed = True
+    def get_ticket_by_id(self, ticket_id: int):
+        """This method is responsible for getting a ticket by its id."""
+        ticket = self.repository.get_ticket_by_id(ticket_id)
+        return ticket
 
-    def select_movie(
-        self,
-        customer_id: int,
-        showtime_id: int,
-        status: str,
-        seat_number: str,
-        price: float,
-    ):
-        """This method is responsible for selecting a movie."""
-        ticket_repository = TicketRepository()
-        ticket = ticket_repository.create_ticket(
-            customer_id, showtime_id, seat_number, price, status
+    def get_tickets_by_customer_id(self, customer_id: int):
+        """This method is responsible for getting all tickets for a customer by customer_id."""
+        tickets = self.repository.get_tickets_by_customer_id(customer_id)
+        return tickets
+
+    def create_ticket(self, customer_id: int, showtime_id: int, seat_number: str):
+        """This method is responsible for creating a new ticket."""
+        base_price = 10
+        state = AddedCartState()
+        status = state.get_status()
+
+        date = datetime.now()
+        customer = CustomerRepository().get_customer_by_id(customer_id)
+
+        is_member = False
+        if customer.type_customer == "member":
+            is_member = True
+            pricing_strategy = MemberPricing().get_price(base_price, date, is_member)
+        else:
+            if datetime.now().hour >= 15:
+                pricing_strategy = HourPricing().get_price(base_price, date, is_member)
+            elif datetime.now().weekday() in [1, 2, 6]:
+                pricing_strategy = DayPricing().get_price(base_price, date, is_member)
+            else:
+                pricing_strategy = RegularPricing().get_price(
+                    base_price, date, is_member
+                )
+
+        seat_repository = SeatRepository()
+        seat_repository.update_seat_status(showtime_id, seat_number, "reserved")
+
+        showtime_repository = ShowtimeRepository()
+        showtime_repository.rest_available_seats(showtime_id)   
+
+        ticket = self.repository.create_ticket(
+            customer_id, showtime_id, seat_number, pricing_strategy, status
         )
-        return {"message": "Ticket purchased successfully", "ticket": ticket}
-
-    def get_ticket_details(self, ticket_id: int):
-        """This method is responsible for getting the ticket details."""
-        ticket_repository = TicketRepository()
-        ticket_details = ticket_repository.get_tickets_details_by_id(ticket_id)
-        if not ticket_details:
-            return {"error": "Ticket not found"}
-        return {"ticket_details": ticket_details}
+        return ticket
 
     def get_price(self, ticket_id: int):
         """This method is used for obtain the price of a ticket"""
@@ -73,20 +91,12 @@ class Ticket(BaseModel):
     def cancel_ticket(self, ticket_id: int):
         """This method is responsible for canceling a ticket."""
         ticket_repository = TicketRepository()
-        ticket = ticket_repository.get_ticket_by_id(ticket_id)
-        if not ticket:
+        ticket_data = ticket_repository.get_ticket_by_id(ticket_id)
+        if not ticket_data:
             return {"error": "Ticket not found"}
-        ticket.status = "cancelled"
-        ticket_repository.update_ticket(
-            ticket.ticket_id,
-            ticket.customer_id,
-            ticket.showtime_id,
-            ticket.seat_number,
-            ticket.price,
-            ticket.status,
-        )
-        return {"message": "Ticket canceled successfully"}
 
-    def get_final_price(self, date: datetime = None, is_member: bool = False) -> float:
-        """This method is responsible for getting the final price of a ticket."""
-        return self.strategy.get_price(self.base_price, date, is_member)
+        state = CancelledState()
+        status = state.get_status()
+
+        updated_ticket = ticket_repository.update_ticket_status(ticket_id, status)
+        return {"message": "Ticket cancelled", "ticket": updated_ticket}
