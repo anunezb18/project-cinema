@@ -1,0 +1,32 @@
+version: '3.3'
+
+services:
+  python_backend:
+    build:
+      context: ./python_services
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_NAME: cinemacondo  # Nombre de tu base de datos en tu PC
+      DATABASE_USER: postgres
+      DATABASE_PASSWORD: Bullrock  # Cambia si es diferente
+      DATABASE_HOST: host.docker.internal  # Para conectarse al PostgreSQL local
+      DATABASE_PORT: 5432
+    networks:
+      - local
+
+  java_backend:
+    build:
+      context: ./java_services
+    ports:
+      - "8001:8001"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5432/cinemacondo
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: Bullrock  # Cambia si es diferente
+    networks:
+      - local
+
+networks:
+  local:
+    driver: bridge
