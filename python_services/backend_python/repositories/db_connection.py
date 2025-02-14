@@ -28,7 +28,7 @@ class DBConnection:
         """Initialize the database connection."""
         self.name = os.getenv("DATABASE_NAME", "cinemacondo")
         self.user = os.getenv("DATABASE_USER", "postgres")
-        self.password = os.getenv("DATABASE_PASSWORD", "Bullrock")
+        self.password = os.getenv("DATABASE_PASSWORD", "181018")
         self.host = os.getenv("DATABASE_HOST", "localhost")
         self.port = int(os.getenv("DATABASE_PORT", "5432"))
         self.conn = None

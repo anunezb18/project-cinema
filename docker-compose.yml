@@ -7,13 +7,14 @@ services:
     ports:
       - "8000:8000"
     environment:
-      DATABASE_NAME: cinemacondo  # Nombre de tu base de datos en tu PC
+      DATABASE_NAME: cinemacondo  # Change DB name 
       DATABASE_USER: postgres
-      DATABASE_PASSWORD: Bullrock  # Cambia si es diferente
-      DATABASE_HOST: host.docker.internal  # Para conectarse al PostgreSQL local
+      DATABASE_PASSWORD: 181018  # Change password
+      DATABASE_HOST: localhost # host.docker.internal if it's windows
       DATABASE_PORT: 5432
-    networks:
-      - local
+    network_mode: "host"
+    # networks:
+    #   - local -> if it's windows
 
   java_backend:
     build:
@@ -21,11 +22,14 @@ services:
     ports:
       - "8001:8001"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5432/cinemacondo
+      SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/cinemacondo #same as up
       SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: Bullrock  # Cambia si es diferente
-    networks:
-      - local
+      SPRING_DATASOURCE_PASSWORD: 181018  
+    network_mode: "host"
+    # networks:
+    #   - local -> if it's windows
+
+    
 
 networks:
   local:
