@@ -1,20 +1,3 @@
-/**
- * This class is responsible for managing the web services of the order class.
- * @Author: <anunezb@udistrital.edu.co>, <masanabriap@udistrital.edu.co>
- *
- * CineMacondo is free software: you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation, either version 3 of 
- * the License, or (at your option) any later version.
- *
- * CineMacondo is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
- * General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License 
- * along with CineMacondo. If not, see <https://www.gnu.org/licenses/>.
- */  
 package project_cinema.java_services.controllers;
 
 import java.util.List;
@@ -31,6 +14,23 @@ import org.springframework.web.bind.annotation.RestController;
 import project_cinema.java_services.data_objects.order_data;
 import project_cinema.java_services.services.order_services;
 
+/**
+ * This class is responsible for managing the web services of the order class.
+ * Author: <anunezb@udistrital.edu.co>, <masanabriap@udistrital.edu.co>
+ *
+ * CineMacondo is free software: you can redistribute it and/or 
+ * modify it under the terms of the GNU General Public License as 
+ * published by the Free Software Foundation, either version 3 of 
+ * the License, or (at your option) any later version.
+ *
+ * CineMacondo is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License 
+ * along with CineMacondo. If not, see <https://www.gnu.org/licenses/>.
+ */  
 @RestController
 @RequestMapping("/order")
 public class order {
@@ -50,8 +50,6 @@ public class order {
 
     /**
      * This method allows to obtain the order by its id
-     * @param id
-     * @return Order that has the asked id
      */
     @GetMapping("/getOrderbyId/{idOrder}")
     public Optional<order_data> getOrderbyId(@PathVariable("idOrder")Integer id){
@@ -60,14 +58,15 @@ public class order {
 
     /**
      * This method allows to create an order
-     * @param Order
-     * @return
      */
     @PostMapping("/createOrder")
     public Optional<order_data> createOrder(@RequestBody order_data Order){
         return order_services.createOrder(Order);
     }
 
+    /**
+     * This method allows to obtain the cart total price by the customer id
+     */
     @GetMapping("/getTotalPrice/{customer_id}")
     public Optional<Float> getTotalPricebyCustomerId(@PathVariable("customer_id") Integer customer_id){
         return order_services.getTotalPricebyCustomerId(customer_id);
